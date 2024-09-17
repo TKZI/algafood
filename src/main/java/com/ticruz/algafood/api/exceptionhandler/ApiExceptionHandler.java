@@ -35,8 +35,10 @@ import com.ticruz.algafood.domain.exception.NegocioException;
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
-	private static final String USER_MESSAGE = "Ocorreu um erro interno inesperado no sistema"
-			+ ". Tente novamente e se o problema persistir, entre em contato com o administrador do sistema.";
+	private static final String USER_MESSAGE = """
+            Ocorreu um erro interno inesperado no sistema\
+            . Tente novamente e se o problema persistir, entre em contato com o administrador do sistema.\
+            """;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -52,11 +54,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		Throwable rootCause = ExceptionUtils.getRootCause(ex);
 
-		if (rootCause instanceof InvalidFormatException) {
+		if (rootCause instanceof InvalidFormatException exception) {
 
-			return handleInvalidFormatException((InvalidFormatException) rootCause, headers, status, request);
-		} else if (rootCause instanceof PropertyBindingException) {
-			return handlePropertyBindinException((PropertyBindingException) rootCause, headers, status, request);
+			return handleInvalidFormatException(exception, headers, status, request);
+		} else if (rootCause instanceof PropertyBindingException exception) {
+			return handlePropertyBindinException(exception, headers, status, request);
 		}
 
 		ProblemType problemType = ProblemType.MENSAGEM_INCOMPREENSIVEL;
@@ -72,8 +74,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleTypeMismatch(org.springframework.beans.TypeMismatchException ex,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-		if (ex instanceof MethodArgumentTypeMismatchException) {
-			return handleMethodArgumentTypeMismatch((MethodArgumentTypeMismatchException) ex, headers, status, request);
+		if (ex instanceof MethodArgumentTypeMismatchException exception) {
+			return handleMethodArgumentTypeMismatch(exception, headers, status, request);
 		}
 
 		return super.handleTypeMismatch(ex, headers, status, request);
@@ -82,10 +84,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	private ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		ProblemType problemType = ProblemType.PARAMETRO_INVALIDO;
-		String detail = String.format(
-				"O parâmetro dde URL '%s' recebeu o valor '%s' "
-						+ "que é de um tipo inválido. Corrija e informe um valor compatível com o tipo %s",
-				ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+		String detail = (
+                """
+                O parâmetro dde URL '%s' recebeu o valor '%s' \
+                que é de um tipo inválido. Corrija e informe um valor compatível com o tipo %s\
+                """).formatted(
+                ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
 
 		Problem problem = createProblemBuilder((HttpStatus) status, problemType, detail).userMessage(USER_MESSAGE)
 				.build();
@@ -98,8 +102,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		ProblemType problemType = ProblemType.MENSAGEM_INCOMPREENSIVEL;
 		String path = joinPath(ex.getPath());
 
-		String detail = String.format(
-				"A propriedade '%s'não existe. " + "Corrija ou remova essa propriedade e tente novamente", path);
+		String detail = (
+                """
+                A propriedade '%s'não existe. \
+                Corrija ou remova essa propriedade e tente novamente\
+                """).formatted(path);
 		Problem problem = createProblemBuilder((HttpStatus) status, problemType, detail).userMessage(USER_MESSAGE)
 				.build();
 		return handleExceptionInternal(ex, problem, headers, status, request);
@@ -110,10 +117,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		String path = ex.getPath().stream().map(ref -> ref.getFieldName()).collect(Collectors.joining("."));
 
 		ProblemType problemType = ProblemType.MENSAGEM_INCOMPREENSIVEL;
-		String detail = String.format(
-				"A propriedade '%s' recebeu o valor '%s' , "
-						+ "que é de um tipo inválido. Corrija e informe um valor compatível com o tipo %s",
-				path, ex.getValue(), ex.getTargetType().getSimpleName());
+		String detail = (
+                """
+                A propriedade '%s' recebeu o valor '%s' , \
+                que é de um tipo inválido. Corrija e informe um valor compatível com o tipo %s\
+                """).formatted(
+                path, ex.getValue(), ex.getTargetType().getSimpleName());
 		Problem problem = createProblemBuilder((HttpStatus) status, problemType, detail).userMessage(USER_MESSAGE)
 				.build();
 
@@ -166,8 +175,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			body = Problem.builder().timestamp(OffsetDateTime.now()).title(statusCode.toString())
 					.status(statusCode.value()).userMessage(USER_MESSAGE).build();
 
-		} else if (body instanceof String) {
-			body = Problem.builder().timestamp(OffsetDateTime.now()).title((String) body).status(statusCode.value())
+		} else if (body instanceof String string) {
+			body = Problem.builder().timestamp(OffsetDateTime.now()).title(string).status(statusCode.value())
 					.userMessage(USER_MESSAGE).build();
 		}
 
@@ -195,7 +204,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
 		ProblemType problemType = ProblemType.RECURSO_NAO_ENCONTRADO;
 
-		String detail = String.format("O recurso %s, que você tentou acessar, é inexistente.", ex.getRequestURL());
+		String detail = "O recurso %s, que você tentou acessar, é inexistente.".formatted(ex.getRequestURL());
 		Problem problem = createProblemBuilder((HttpStatus) status, problemType, detail).userMessage(detail).build();
 
 		return handleExceptionInternal(ex, problem, headers, status, request);
@@ -227,8 +236,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			String message = messageSource.getMessage(objectError, LocaleContextHolder.getLocale());
 			String name = objectError.getObjectName();
 
-			if (objectError instanceof FieldError) {
-				name = ((FieldError) objectError).getField();
+			if (objectError instanceof FieldError error) {
+				name = error.getField();
 			}
 			return Problem.Object.builder().name(name).userMessage(message).build();
 		}).collect(Collectors.toList());
@@ -249,8 +258,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			String message = messageSource.getMessage(objectError, LocaleContextHolder.getLocale());
 			String name = objectError.getObjectName();
 
-			if (objectError instanceof FieldError) {
-				name = ((FieldError) objectError).getField();
+			if (objectError instanceof FieldError error) {
+				name = error.getField();
 			}
 
 			return Problem.Object.builder().name(name).userMessage(message).build();

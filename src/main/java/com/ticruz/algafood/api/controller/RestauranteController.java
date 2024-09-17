@@ -50,7 +50,7 @@ public class RestauranteController {
 	
 	
 	
-	 @GetMapping   
+	 @GetMapping(produces = "application/json" )
 	public List<RestauranteModel> listar(){
 		 
 		 return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());

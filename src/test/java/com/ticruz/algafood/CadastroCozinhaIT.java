@@ -23,7 +23,7 @@ import io.restassured.http.ContentType;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT) // precisa passar o ambiente pra levantar a aplicação
 @TestPropertySource("/application-test.properties")
-public class CadastroCozinhaIT {
+class CadastroCozinhaIT {
 	
 	private static final int COZINHA_ID_INEXISTENTE = 100;
 
@@ -39,9 +39,9 @@ public class CadastroCozinhaIT {
 	private Cozinha cozinhaAmericana;
 	private int quantidadeCozinhasCadastradas;
 	private String jsonCorretoCozinhaChinesa;
-	
-	@BeforeEach
-	public void setUp() {  //esse método é o método dos testes e executa antes dos testes
+
+    @BeforeEach
+    void setUp() {  //esse método é o método dos testes e executa antes dos testes
 		
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 		//ajuda a debugar, mostra o logging da requisição 
@@ -61,8 +61,9 @@ public class CadastroCozinhaIT {
 		
 	}
 
-	@Test 		//usando o assured para test de API
-	public void deveRetornarStatus200_QuandoConsultarCozinhas() {
+    //usando o assured para test de API
+    @Test
+    void deveRetornarStatus200_QuandoConsultarCozinhas() {
 		
 		//RestAssured
 		given() //dado que..
@@ -74,9 +75,9 @@ public class CadastroCozinhaIT {
 		.then()   //então 
 			.statusCode(HttpStatus.OK.value()); //apresentar status 200
 	}
-	
-	@Test
-	public void deveRetornarQuantidadeCorretaDeCozinhas_QuandoConsultarCozinhas() {
+
+    @Test
+    void deveRetornarQuantidadeCorretaDeCozinhas_QuandoConsultarCozinhas() {
 
 		given()
 			.accept(ContentType.JSON)
@@ -86,9 +87,9 @@ public class CadastroCozinhaIT {
 		.body("", hasSize(quantidadeCozinhasCadastradas)); //valida se o corpo responde esse tamanho
 		//.body("nome", hasItems("Tailandesa","Americana"));  valida se o corpo tem estes nomes
 	}
-	
-	@Test
-	public void deveRetornarStatus201_QuandoCadastrarCozinha() {
+
+    @Test
+    void deveRetornarStatus201_QuandoCadastrarCozinha() {
 			
 		given()
 			.body(jsonCorretoCozinhaChinesa)
@@ -99,9 +100,9 @@ public class CadastroCozinhaIT {
 		.then()
 			.statusCode(HttpStatus.CREATED.value());
 	}
-	
-	@Test
-	public void deveRetornarRespostaEStatusCorretos_QuandoConsultarCozinhaExistente() {
+
+    @Test
+    void deveRetornarRespostaEStatusCorretos_QuandoConsultarCozinhaExistente() {
 		given()
 		.pathParam("cozinhaId", cozinhaAmericana.getId())
 			.accept(ContentType.JSON)
@@ -111,8 +112,9 @@ public class CadastroCozinhaIT {
 			.statusCode(HttpStatus.OK.value())
 			.body("nome", equalTo(cozinhaAmericana.getNome()));
 	}
-	@Test
-	public void deveRetornarEStatus404_QuandoConsultarCozinhaInexistente() {
+
+    @Test
+    void deveRetornarEStatus404_QuandoConsultarCozinhaInexistente() {
 		given()
 		.pathParam("cozinhaId", COZINHA_ID_INEXISTENTE)
 			.accept(ContentType.JSON)

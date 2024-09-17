@@ -39,7 +39,7 @@ public class CadastroGrupoService {
 			
 		}catch(DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(
-				String.format(MSG_GRUPO_EM_USO, grupoId));
+                    MSG_GRUPO_EM_USO.formatted(grupoId));
 			
 		}
 		

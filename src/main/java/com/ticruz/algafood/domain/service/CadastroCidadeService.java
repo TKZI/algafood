@@ -54,7 +54,7 @@ public class CadastroCidadeService {
 			
 			} catch (DataIntegrityViolationException e) {
 				throw new EntidadeEmUsoException(
-					String.format(MSG_CIDADE_EM_USO, cidadeId));
+                        MSG_CIDADE_EM_USO.formatted(cidadeId));
 			}
 		
 	}
